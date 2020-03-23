@@ -1,0 +1,63 @@
+rankall <- function(outcome, num ) {
+  ## Read outcome data
+  input_data <- read.csv("outcome-of-care-measures.csv")
+
+  ## Check that outcome is valid
+  if (!((outcome == "heart attack") | (outcome == "heart failure")
+        | (outcome == "pneumonia"))) {
+    stop ("invalid outcome")
+  }
+  ## Check that non numeric rank is valid
+  validrank<-c("worst","best")
+  if (!is.numeric(num))  
+     if(!num %in% validrank){  
+      stop ("invalid rank")
+    }
+    
+  ## Get the col number for the received outcome
+  col <- if (outcome == "heart attack") {
+    11
+  } else if (outcome == "heart failure") {
+    17
+  } else {
+    23
+  }
+  
+  input_data[, col] <- suppressWarnings(as.numeric(levels(input_data[, col])[input_data[, col]]))
+  input_data[, 2] <- as.character(input_data[, 2])
+  
+  # Generate an empty vector that will be filled later, row by row, to 
+  # generate the final output.
+  output <- vector()
+  states <- levels(input_data[, 7]) 
+  
+  for(i in 1:length(states)) {
+    # extract all data related to specific state
+    statedata <- input_data[grep(states[i], input_data$State), ]
+
+    #sort data by desease & state
+    orderdata <- statedata[order(statedata[, col], statedata[, 2], 
+                                 na.last = NA), ]
+    
+    #Based on rank value obtain the appropiate output
+    # Best - get the first value
+    # Worst - get the last value (nrow)
+    # Numeric - get the number of rows required in the rank
+    hospital <- if(num == "best") {
+      orderdata[1, 2]
+    } else if(num == "worst") {
+      orderdata[nrow(orderdata), 2]
+    } else{
+      orderdata[num, 2]
+    }
+    output <- append(output, c(hospital, states[i]))
+  }
+  
+  ## Return a data frame with the hospital names and the (abbreviated) 
+  ## state name
+  output <- as.data.frame(matrix(output, length(states), 2, byrow = TRUE))
+  colnames(output) <- c("hospital", "state")
+  rownames(output) <- states
+  
+  output
+  }
