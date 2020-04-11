@@ -6,7 +6,7 @@ Manuel Solans.
 https://github.com/zzb0fb/Linked-to-RStudio/tree/Getting%26CleaningData/GettingCleaningData
 ==================================================================
 
-Within this branh you will find 2 files
+Within this branch you will find 3 files
 
 run_analysys.R
 Code Book.pdf
